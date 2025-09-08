@@ -117,3 +117,41 @@ if err != nil || id < 1 {
     return
 }
 ```
+
+
+# 6. Организация файлов веб-приложения на Go
+
+
+```bash
+go run ./cmd/web
+```
+
+# 7. Шаблонизатор в Golang при создании веб-приложения
+
+```go
+ts, err := template.ParseFiles("./ui/html/home-page.html")
+```
+
+```go
+err = ts.Execute(w, nil)
+```
+
+рабочая директория зависит от того, в каком месте запускается бинарник
+
+```html
+{{define "base"}}
+...
+{{define end}}
+```
+
+```html
+{{template "title" .}}
+
+{{template "main" .}}
+```
+
+golang-шаблонизатор
+
+{{template}} и {{block}} … {{end}}.
+
+# 8. Получаем доступ к статическим файлам — CSS и JS
