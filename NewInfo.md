@@ -190,5 +190,45 @@ mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 # 9. Интерфейс http.Handler — Обработчик запросов
 
+```go
+mux := http.NewServeMux()
+mux.Handle("/", http.HandlerFunc(home))
+```
+
+# 10. Настройка веб-приложения из командной строки
+
+```go
+addr := flag.String("addr", ":4000", "Сетевой адрес HTTP")
+flag.Parse()
+
+...
+
+log.Printf("Запуск сервера на %s", *addr)
+err := http.ListenAndServe(*addr, mux)
+```
+
+> flag.String(), flag.Int(), flag.Bool(), flag.Float64()
 
 
+```bash
+go run ./cmd/web/ -help
+```
+
+```go
+// export SNIPPETBOX_ADDR=":9999"
+addr := os.Getenv("SNIPPETBOX_ADDR")
+```
+
+```go
+type Config struct {
+    Addr      string
+    StaticDir string
+}
+
+...
+
+cfg := new(Config)
+flag.StringVar(&cfg.Addr, "addr", ":4000", "HTTP network address")
+flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
+flag.Parse()
+```
