@@ -226,9 +226,44 @@ type Config struct {
 }
 
 ...
-
 cfg := new(Config)
 flag.StringVar(&cfg.Addr, "addr", ":4000", "HTTP network address")
 flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
 flag.Parse()
+```
+
+# 11. Логирование в Golang — Записываем лог в файл
+
+> стандартный логгер в golang
+
+> информационные сообщения и сообщения об ошибках
+
+> многоуровневое логгирование
+
+> os.Stdin, os.Stdout, os.Stderr
+
+```go
+infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+...
+
+infoLog.Printf("Запуск сервера на %s", *addr)
+errorLog.Fatal(err)
+```
+
+```bash
+go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log
+```
+
+```go
+srv := &http.Server{
+    Addr:     *addr,
+    ErrorLog: errorLog,
+    Handler:  mux,
+}
+```
+
+```go
+err := srv.ListenAndServe()
 ```
