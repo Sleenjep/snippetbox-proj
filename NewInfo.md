@@ -267,3 +267,33 @@ srv := &http.Server{
 ```go
 err := srv.ListenAndServe()
 ```
+
+```go
+errorFile, err := os.OpenFile("errors.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+defer errorFile.Close()
+```
+
+```go
+mw := io.MultiWriter(os.Stderr, errorFile)
+errorLog := log.New(mw, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+```
+
+# 12. Внедрение зависимостей в Golang (Dependency Injection)
+
+```go
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
+...
+
+mux.HandleFunc("/", app.home)
+mux.HandleFunc("/snippet", app.showSnippet)
+mux.HandleFunc("/snippet/create", app.createSnippet)
+```
+
+# 13. Создание методов-помощников для обработки ошибок
