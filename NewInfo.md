@@ -64,6 +64,7 @@ var DefaultServeMux = NewServeMux()
 ```go
 if r.Method != http.MethodPost {
     w.WriteHeader(405)
+    // w.WriteHeader(http.StatusMethodNotAllowed)
     w.Write([]byte("GET-метод запрещён!"))
     return
 }
@@ -155,3 +156,144 @@ golang-шаблонизатор
 {{template}} и {{block}} … {{end}}.
 
 # 8. Получаем доступ к статическим файлам — CSS и JS
+
+```go
+fileServer := http.FileServer(http.Dir("./ui/static"))
+```
+
+```html
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700">
+```
+
+```html
+<script src="/static/js/main.js" type="text/javascript"></script>
+```
+
+```go
+fileServer := http.FileServer(http.Dir("./ui/static/"))
+mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+```
+
+> обработчик статических файлов в Go 
+
+> path.Clean() и атаки по обходу нижних уровней директорий
+
+> настраиваемая файловая система и ее последующая её передача в http.FileServer
+
+```go
+fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
+mux.Handle("/static", http.NotFoundHandler())
+mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+```
+
+# 9. Интерфейс http.Handler — Обработчик запросов
+
+```go
+mux := http.NewServeMux()
+mux.Handle("/", http.HandlerFunc(home))
+```
+
+# 10. Настройка веб-приложения из командной строки
+
+```go
+addr := flag.String("addr", ":4000", "Сетевой адрес HTTP")
+flag.Parse()
+
+...
+
+log.Printf("Запуск сервера на %s", *addr)
+err := http.ListenAndServe(*addr, mux)
+```
+
+> flag.String(), flag.Int(), flag.Bool(), flag.Float64()
+
+
+```bash
+go run ./cmd/web/ -help
+```
+
+```go
+// export SNIPPETBOX_ADDR=":9999"
+addr := os.Getenv("SNIPPETBOX_ADDR")
+```
+
+```go
+type Config struct {
+    Addr      string
+    StaticDir string
+}
+
+...
+cfg := new(Config)
+flag.StringVar(&cfg.Addr, "addr", ":4000", "HTTP network address")
+flag.StringVar(&cfg.StaticDir, "static-dir", "./ui/static", "Path to static assets")
+flag.Parse()
+```
+
+# 11. Логирование в Golang — Записываем лог в файл
+
+> стандартный логгер в golang
+
+> информационные сообщения и сообщения об ошибках
+
+> многоуровневое логгирование
+
+> os.Stdin, os.Stdout, os.Stderr
+
+```go
+infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+...
+
+infoLog.Printf("Запуск сервера на %s", *addr)
+errorLog.Fatal(err)
+```
+
+```bash
+go run ./cmd/web >>/tmp/info.log 2>>/tmp/error.log
+```
+
+```go
+srv := &http.Server{
+    Addr:     *addr,
+    ErrorLog: errorLog,
+    Handler:  mux,
+}
+```
+
+```go
+err := srv.ListenAndServe()
+```
+
+```go
+errorFile, err := os.OpenFile("errors.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+if err != nil {
+    log.Fatal(err)
+}
+defer errorFile.Close()
+```
+
+```go
+mw := io.MultiWriter(os.Stderr, errorFile)
+errorLog := log.New(mw, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+```
+
+# 12. Внедрение зависимостей в Golang (Dependency Injection)
+
+```go
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
+...
+
+mux.HandleFunc("/", app.home)
+mux.HandleFunc("/snippet", app.showSnippet)
+mux.HandleFunc("/snippet/create", app.createSnippet)
+```
+
+# 13. Создание методов-помощников для обработки ошибок
