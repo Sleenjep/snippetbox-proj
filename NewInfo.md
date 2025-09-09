@@ -187,3 +187,8 @@ fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
 mux.Handle("/static", http.NotFoundHandler())
 mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 ```
+
+# 9. Интерфейс http.Handler — Обработчик запросов
+
+
+
