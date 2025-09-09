@@ -64,6 +64,7 @@ var DefaultServeMux = NewServeMux()
 ```go
 if r.Method != http.MethodPost {
     w.WriteHeader(405)
+    // w.WriteHeader(http.StatusMethodNotAllowed)
     w.Write([]byte("GET-метод запрещён!"))
     return
 }
@@ -155,3 +156,34 @@ golang-шаблонизатор
 {{template}} и {{block}} … {{end}}.
 
 # 8. Получаем доступ к статическим файлам — CSS и JS
+
+```go
+fileServer := http.FileServer(http.Dir("./ui/static"))
+```
+
+```html
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="shortcut icon" href="/static/img/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700">
+```
+
+```html
+<script src="/static/js/main.js" type="text/javascript"></script>
+```
+
+```go
+fileServer := http.FileServer(http.Dir("./ui/static/"))
+mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+```
+
+> обработчик статических файлов в Go 
+
+> path.Clean() и атаки по обходу нижних уровней директорий
+
+> настраиваемая файловая система и ее последующая её передача в http.FileServer
+
+```go
+fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
+mux.Handle("/static", http.NotFoundHandler())
+mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+```
