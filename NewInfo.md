@@ -312,3 +312,34 @@ NOTHING
 
 NOTHING
 
+# 16. Установка MySQL драйвера для работы в Golang
+
+```bash
+go get github.com/jackc/pgx/v5
+```
+
+```bash
+go get -u github.com/jackc/pgx/v5
+```
+
+> go.mod и go.sum
+
+```bash
+go mod verify
+```
+
+```bash
+go mod download
+```
+
+```bash
+go get -u github.com/jackc/pgx/v5@none
+```
+
+```bash
+go mod tidy
+```
+
+```bash
+go mod tidy -v
+```
