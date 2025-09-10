@@ -119,6 +119,10 @@ if err != nil || id < 1 {
 }
 ```
 
+# 5. Обработка URL-запросов в Golang
+
+NOTHING
+
 
 # 6. Организация файлов веб-приложения на Go
 
@@ -297,3 +301,55 @@ mux.HandleFunc("/snippet/create", app.createSnippet)
 ```
 
 # 13. Создание методов-помощников для обработки ошибок
+
+> debug.Stack()
+
+# 14. Изоляция маршрутизации приложения в отдельный файл
+
+NOTHING
+
+# 15. Установка MySQL для веб-приложения на Golang
+
+NOTHING
+
+# 16. Установка MySQL драйвера для работы в Golang
+
+```bash
+go get github.com/jackc/pgx/v5
+```
+
+```bash
+go get -u github.com/jackc/pgx/v5
+```
+
+> go.mod и go.sum
+
+```bash
+go mod verify
+```
+
+```bash
+go mod download
+```
+
+```bash
+go get -u github.com/jackc/pgx/v5@none
+```
+
+```bash
+go mod tidy
+```
+
+```bash
+go mod tidy -v
+```
+
+# 17. Создание пула подключений к MySQL в Go
+
+> пул соединений с базой данных
+
+> импорт драйверов для баз данных в golang
+
+```go
+import _ "github.com/jackc/pgx/v5/stdlib"
+```

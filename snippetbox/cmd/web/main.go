@@ -1,12 +1,15 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
-	"io"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
+	"strings"
+
+	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type application struct {
@@ -14,69 +17,55 @@ type application struct {
 	infoLog  *log.Logger
 }
 
-type neuteredFileSystem struct {
-	fs http.FileSystem
-}
-
-func (nfs neuteredFileSystem) Open(path string) (http.File, error) {
-	f, err := nfs.fs.Open(path)
-	if err != nil {
-		return nil, err
-	}
-
-	info, err := f.Stat()
-	if err != nil {
-		_ = f.Close()
-		return nil, err
-	}
-
-	if info.IsDir() {
-		index := filepath.Join(path, "index.html")
-		if _, err := nfs.fs.Open(index); err != nil {
-			_ = f.Close()
-			return nil, err
-		}
-	}
-
-	return f, nil
-}
-
 func main() {
-	addr := flag.String("addr", ":4000", "Сетевой адрес HTTP")
-	flag.Parse()
+	addr := flag.String("addr", ":4000", "Сетевой адрес веб-сервера")
 
-	errorFile, err := os.OpenFile("errors.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	passBytes, err := os.ReadFile("../secrets/pg_pass.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer errorFile.Close()
+	password := strings.TrimSpace(string(passBytes))
+
+	dsn := flag.String("dsn",
+		fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+			"user_pg", password, "localhost", 5432, "snippetbox-pg-db"),
+		"PostgreSQL DSN",
+	)
+
+	flag.Parse()
 
 	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 
-	mw := io.MultiWriter(os.Stderr, errorFile)
-	errorLog := log.New(mw, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	db, err := openDB(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer db.Close()
 
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
 	}
 
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
-
-	fileServer := http.FileServer(neuteredFileSystem{http.Dir("./ui/static")})
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
-		Handler:  mux,
+		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Запуск сервера на %s", *addr)
+	infoLog.Printf("Запуск сервера (http://127.0.0.1:4000/) на %s", *addr)
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
