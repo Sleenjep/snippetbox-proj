@@ -343,3 +343,13 @@ go mod tidy
 ```bash
 go mod tidy -v
 ```
+
+# 17. Создание пула подключений к MySQL в Go
+
+> пул соединений с базой данных
+
+> импорт драйверов для баз данных в golang
+
+```go
+import _ "github.com/jackc/pgx/v5/stdlib"
+```
