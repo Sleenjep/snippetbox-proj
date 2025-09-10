@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: snippetbox-pg-db
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: user_pg
+      POSTGRES_DB: snippetbox-db
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_pass
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-db/init-db:/docker-entrypoint-initdb.d:ro
+
+    secrets:
+      - pg_pass
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_pg -d snippetbox-db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - snippetbox
+
+secrets:
+  pg_pass:
+    file: ./secrets/pg_pass.txt
+
+volumes:
+  pgdata:
+    name: pgdata
+
+networks:
+  snippetbox:
+    name: snippetbox-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.20.0.0/24
+          gateway: 10.20.0.1
