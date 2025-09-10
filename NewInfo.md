@@ -310,3 +310,5 @@ NOTHING
 
 # 15. Установка MySQL для веб-приложения на Golang
 
+NOTHING
+
