@@ -9,12 +9,15 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Sleenjep/snippetbox-proj/snippetbox/pkg/models/postgresql"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *postgresql.SnippetModel
 }
 
 func main() {
@@ -46,6 +49,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &postgresql.SnippetModel{DB: db},
 	}
 
 	srv := &http.Server{
@@ -54,7 +58,7 @@ func main() {
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Запуск сервера (http://127.0.0.1:4000/) на %s", *addr)
+	infoLog.Printf("Запуск сервера (http://localhost:4000/)")
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
@@ -67,5 +71,12 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	// var version string
+	// if err := db.QueryRow("SELECT version()").Scan(&version); err != nil {
+	// 	return nil, fmt.Errorf("ошибка тестового запроса: %w", err)
+	// }
+	// log.Printf("Подключено к PostgreSQL: %s\n", version)
+
 	return db, nil
 }

@@ -353,3 +353,70 @@ go mod tidy -v
 ```go
 import _ "github.com/jackc/pgx/v5/stdlib"
 ```
+
+# 18. Проектирование модели в Go
+
+> создание моделей БД в Go
+
+# 19. Выполнение SQL запросов в Golang
+
+> плейсхолдеры и SQL-инъекции
+
+```go
+DB.Query()
+```
+
+```go
+DB.QueryRow()
+```
+
+```go
+DB.Exec()
+```
+
+
+```go
+if, err := result.LastInsertId() // для MySQL
+
+err = db.QueryRow(`INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id`, "Alice", "alice@example.com").Scan(&id) // для PostgreSQL
+```
+
+Запрос с использованием MySQL:
+```go
+stmt := `
+    INSERT INTO snippets (title, content, created, expires)
+    VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))
+`
+```
+
+Запрос с использованием PostgreSQL:
+```go
+stmt := `
+    INSERT INTO snippets (title, content, created, expires)
+    VALUES ($1, $2, NOW(), NOW() + ($3 || 'days')::interval)
+    RETURNING id
+`
+```
+
+> SQL-инъекции
+
+# 20. Выводим запись из базы данных по её ID из URL
+
+> использование параметра parseTime=true
+
+> функция error.ls()
+
+```go
+if errors.Is(err, sql.ErrNoRows) {
+    return nil, models.ErrNoRecord
+} else {
+    return nil, err
+}
+```
+
+# 21. Вывод последних записей из базы данных
+
+```go
+defer rows.Close()
+```
+
