@@ -415,3 +415,8 @@ if errors.Is(err, sql.ErrNoRows) {
 ```
 
 # 21. Вывод последних записей из базы данных
+
+```go
+defer rows.Close()
+```
+
