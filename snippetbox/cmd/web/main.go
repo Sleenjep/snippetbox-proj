@@ -9,12 +9,15 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Sleenjep/snippetbox-proj/snippetbox/pkg/models/postgresql"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	snippets *postgresql.SnippetModel
 }
 
 func main() {
@@ -46,6 +49,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &postgresql.SnippetModel{DB: db},
 	}
 
 	srv := &http.Server{
