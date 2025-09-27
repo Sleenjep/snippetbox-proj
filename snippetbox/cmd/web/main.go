@@ -58,7 +58,7 @@ func main() {
 		Handler:  app.routes(),
 	}
 
-	infoLog.Printf("Запуск сервера (http://127.0.0.1:4000/) на %s", *addr)
+	infoLog.Printf("Запуск сервера (http://localhost:4000/)")
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
@@ -71,5 +71,12 @@ func openDB(dsn string) (*sql.DB, error) {
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
+
+	// var version string
+	// if err := db.QueryRow("SELECT version()").Scan(&version); err != nil {
+	// 	return nil, fmt.Errorf("ошибка тестового запроса: %w", err)
+	// }
+	// log.Printf("Подключено к PostgreSQL: %s\n", version)
+
 	return db, nil
 }
