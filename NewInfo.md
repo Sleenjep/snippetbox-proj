@@ -402,3 +402,16 @@ stmt := `
 
 # 20. Выводим запись из базы данных по её ID из URL
 
+> использование параметра parseTime=true
+
+> функция error.ls()
+
+```go
+if errors.Is(err, sql.ErrNoRows) {
+    return nil, models.ErrNoRecord
+} else {
+    return nil, err
+}
+```
+
+# 21. Вывод последних записей из базы данных
