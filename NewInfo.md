@@ -420,3 +420,177 @@ if errors.Is(err, sql.ErrNoRows) {
 defer rows.Close()
 ```
 
+# 22. SQL Транзакции через Golang
+
+```go
+```
+
+> пакет database/sql
+
+```go
+tx, err := m.DB.Begin()
+
+_, err = tx.Exec("INSERT INTO ...")
+if err != nil {
+    tx.Rollback()
+    return err
+}
+
+err = tx.Commit()
+```
+
+```go
+db.SetMaxOpenConns(100)
+
+db.SetMaxIdleConns(5)
+```
+
+# 23. Отображение контента из MySQL в HTML-шаблон
+
+> XSS-атаки 
+
+> экранирование данных с использованием  {{}}
+
+> html/template и text/template
+
+```html
+<span>{{"<script>alert('xss attack')</script>"}}</span>
+
+<span>&lt;script&gt;alert(&#39;xss attack&#39;)&lt;/script&gt;</span>
+```
+
+Вызов одного шаблона из другого c использованием .:
+```html
+{{template "base" .}}
+{{template "main" .}}
+{{template "footer" .}}
+```
+
+Вызов метода в шаблоне:
+```html
+<span>{{.Snippet.Created.Weekday}}</span>
+```
+
+Вызов метода и передача в него параметров:
+```html
+<span>{{.Snippet.Created.AddDate 0 6 0}}</span>
+```
+
+> tml/template удаляет любые HTML комментарии и любые условные комментарии
+
+# 24. Операторы и функции от Golang Шаблонизатора
+
+```html
+{{if .Foo}}
+    <div>{{.C1}}</div>
+{{else}}
+    <div>{{.C2}}</div>
+{{end}}
+```
+
+```html
+{{ when .userdata }}
+    <b>Имя:</b> {{ .Name }},
+    <b>Телефон:</b> {{ .Phone }},
+    <b>Возраст:</b> {{ .Age }}
+{{ else }}
+    Нет данных!
+{{ end }}
+```
+
+```html
+{{ range .clients }}
+<div>
+    <p>Имя: {{ .Name }}</p>
+    <p>Бюджет: {{ .Money }}</p>
+</div>
+{{ else }}
+    Нет данных!
+{{ end }}
+```
+
+```html
+{{ range $key, $client := .clients }}
+<div>
+    <p>Номер в списке: {{ $key }}</p>
+    <p>Имя: {{ $client.Name }}</p>
+    <p>Бюджет: {{ $client.Money }}</p>
+</div>
+{{ end }}
+```
+
+```html
+{{eq .Foo .Bar}}
+
+{{ne .Foo .Bar}}
+
+{{not .Foo}}
+
+{{or .Foo .Bar}}
+
+{{index .Foo i}}
+
+{{printf "%s-%s" .Foo .Bar}}
+
+{{len .Foo}}
+
+{{$bar := len .Foo}}
+```
+
+# 25. Кэширование шаблонов в Golang
+
+```go
+pages, err := filepath.Glob(filepath.Join(dir, "*.page.tmpl"))
+```
+
+```go
+func newTemplateCache(dir string) (map[string]*template.Template, error) {
+	cache := map[string]*template.Template{}
+
+	pages, err := filepath.Glob(filepath.Join(dir, "*.tmpl"))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, page := range pages {
+		name := filepath.Base(page)
+
+		ts, err := template.ParseFiles(page)
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*layout.html"))
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*partial.html"))
+		if err != nil {
+			return nil, err
+		}
+
+		cache[name] = ts
+	}
+
+	return cache, nil
+}
+```
+
+```go
+func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
+    ts, ok := app.templateCache[name]
+    if !ok {
+        app.serverError(w, fmt.Errorf("шаблон %s не существует", name))
+        return
+    }
+ 
+    err := ts.Execute(w, td)
+    if err != nil {
+        app.serverError(w, err)
+    }
+}
+```
+
+---
+# ==== 29-09-25 ===== 
