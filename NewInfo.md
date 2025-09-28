@@ -478,3 +478,63 @@ db.SetMaxIdleConns(5)
 
 > tml/template удаляет любые HTML комментарии и любые условные комментарии
 
+# 24. Операторы и функции от Golang Шаблонизатора
+
+```html
+{{if .Foo}}
+    <div>{{.C1}}</div>
+{{else}}
+    <div>{{.C2}}</div>
+{{end}}
+```
+
+```html
+{{ when .userdata }}
+    <b>Имя:</b> {{ .Name }},
+    <b>Телефон:</b> {{ .Phone }},
+    <b>Возраст:</b> {{ .Age }}
+{{ else }}
+    Нет данных!
+{{ end }}
+```
+
+```html
+{{ range .clients }}
+<div>
+    <p>Имя: {{ .Name }}</p>
+    <p>Бюджет: {{ .Money }}</p>
+</div>
+{{ else }}
+    Нет данных!
+{{ end }}
+```
+
+```html
+{{ range $key, $client := .clients }}
+<div>
+    <p>Номер в списке: {{ $key }}</p>
+    <p>Имя: {{ $client.Name }}</p>
+    <p>Бюджет: {{ $client.Money }}</p>
+</div>
+{{ end }}
+```
+
+```html
+{{eq .Foo .Bar}}
+
+{{ne .Foo .Bar}}
+
+{{not .Foo}}
+
+{{or .Foo .Bar}}
+
+{{index .Foo i}}
+
+{{printf "%s-%s" .Foo .Bar}}
+
+{{len .Foo}}
+
+{{$bar := len .Foo}}
+```
+
+# 25. Кэширование шаблонов в Golang
