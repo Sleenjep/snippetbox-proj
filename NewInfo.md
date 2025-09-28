@@ -445,8 +445,36 @@ db.SetMaxOpenConns(100)
 db.SetMaxIdleConns(5)
 ```
 
-# Отображение контента из MySQL в HTML-шаблон
+# 23. Отображение контента из MySQL в HTML-шаблон
 
+> XSS-атаки 
 
+> экранирование данных с использованием  {{}}
 
+> html/template и text/template
+
+```html
+<span>{{"<script>alert('xss attack')</script>"}}</span>
+
+<span>&lt;script&gt;alert(&#39;xss attack&#39;)&lt;/script&gt;</span>
+```
+
+Вызов одного шаблона из другого c использованием .:
+```html
+{{template "base" .}}
+{{template "main" .}}
+{{template "footer" .}}
+```
+
+Вызов метода в шаблоне:
+```html
+<span>{{.Snippet.Created.Weekday}}</span>
+```
+
+Вызов метода и передача в него параметров:
+```html
+<span>{{.Snippet.Created.AddDate 0 6 0}}</span>
+```
+
+> tml/template удаляет любые HTML комментарии и любые условные комментарии
 
