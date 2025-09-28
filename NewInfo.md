@@ -420,3 +420,33 @@ if errors.Is(err, sql.ErrNoRows) {
 defer rows.Close()
 ```
 
+# 22. SQL Транзакции через Golang
+
+```go
+```
+
+> пакет database/sql
+
+```go
+tx, err := m.DB.Begin()
+
+_, err = tx.Exec("INSERT INTO ...")
+if err != nil {
+    tx.Rollback()
+    return err
+}
+
+err = tx.Commit()
+```
+
+```go
+db.SetMaxOpenConns(100)
+
+db.SetMaxIdleConns(5)
+```
+
+# Отображение контента из MySQL в HTML-шаблон
+
+
+
+
